@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, signOut } from '../services/firebase';
-import { Compass, User, LogOut } from 'lucide-react';
+import { Compass, User, LogOut, Menu, X } from 'lucide-react';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const user = auth.currentUser;
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -28,7 +29,7 @@ const Navbar = () => {
           </div>
 
           {/* Dynamic Right Side: Profile / Actions */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
             <button 
               onClick={() => navigate('/')}
               className="hidden md:flex font-sans text-xs font-bold tracking-widest uppercase text-muted hover:text-primary transition-colors"
@@ -99,23 +100,55 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <button 
                   onClick={() => navigate('/login')}
-                  className="text-primary hover:text-amber-500 px-4 py-2 font-sans font-medium text-sm transition-colors"
+                  className="hidden sm:inline-block text-primary hover:text-amber-500 px-4 py-2 font-sans font-medium text-sm transition-colors"
                 >
                   Sign In
                 </button>
                 <button 
                   onClick={() => navigate('/login')}
-                  className="bg-primary text-white px-5 py-2.5 rounded-full font-sans font-semibold text-sm hover:bg-primary/80 transition-all duration-300 shadow-sm"
+                  className="bg-primary text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-full font-sans font-semibold text-xs sm:text-sm hover:bg-primary/80 transition-all duration-300 shadow-sm"
                 >
                   Get Started
                 </button>
               </div>
             )}
+            
+            {/* Mobile Menu Toggle button */}
+            <button 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+              className="md:hidden ml-2 p-1 text-primary hover:text-secondary transition-colors"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile slide-down menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-primary/10 bg-white shadow-lg py-4 px-2 space-y-2 animate-in slide-in-from-top-2">
+            <button 
+              onClick={() => { setIsMobileMenuOpen(false); navigate('/'); }} 
+              className="w-full text-left px-4 py-3 font-sans text-xs font-bold tracking-widest uppercase text-muted hover:text-primary hover:bg-gray-50 transition-colors"
+            >
+              Home
+            </button>
+            <button 
+              onClick={() => { setIsMobileMenuOpen(false); navigate('/contact'); }} 
+              className="w-full text-left px-4 py-3 font-sans text-xs font-bold tracking-widest uppercase text-muted hover:text-primary hover:bg-gray-50 transition-colors"
+            >
+              Contact Us
+            </button>
+            <button 
+              onClick={() => { setIsMobileMenuOpen(false); navigate('/create'); }} 
+              className="w-full text-left px-4 py-3 font-sans text-xs tracking-widest uppercase font-bold text-primary hover:text-secondary hover:bg-gray-50 transition-colors"
+            >
+              ✈ Create Trip
+            </button>
+          </div>
+        )}
       </div>
     </nav>
   );

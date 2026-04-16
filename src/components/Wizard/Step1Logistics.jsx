@@ -31,7 +31,7 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
     const timer = setTimeout(async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/api/v1/trips/date-conflict?firebaseUid=${uid}&startDate=${data.startDate}&endDate=${data.endDate}`
+          `https://college-project-backend-production.up.railway.app/api/v1/trips/date-conflict?firebaseUid=${uid}&startDate=${data.startDate}&endDate=${data.endDate}`
         );
         if (res.data.conflict) {
           setDateConflict(res.data);

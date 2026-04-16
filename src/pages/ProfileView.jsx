@@ -31,7 +31,7 @@ const ProfileView = () => {
     setError('');
     try {
       // Step 1: Remove from DB (cascades trips, expenses, etc.)
-      await axios.delete(`http://localhost:8080/api/v1/users/${user.uid}`);
+      await axios.delete(`https://college-project-backend-production.up.railway.app/api/v1/users/${user.uid}`);
 
       // Step 2: Remove Firebase Auth account
       await deleteUser(user);

@@ -29,7 +29,7 @@ const ExpenseTrackerView = () => {
 
   const fetchTracker = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/v1/trips/${id}/tracker`);
+      const response = await axios.get(`https://college-project-backend-production.up.railway.app/api/v1/trips/${id}/tracker`);
       setTracker(response.data);
       setLoading(false);
     } catch (error) {
@@ -43,7 +43,7 @@ const ExpenseTrackerView = () => {
     
     const updatedMembers = [...tracker.memberNames, newMember.trim()];
     try {
-      const response = await axios.put(`http://localhost:8080/api/v1/trips/${id}/tracker/members`, updatedMembers);
+      const response = await axios.put(`https://college-project-backend-production.up.railway.app/api/v1/trips/${id}/tracker/members`, updatedMembers);
       setTracker(response.data);
       setNewMember('');
     } catch (error) {
@@ -57,7 +57,7 @@ const ExpenseTrackerView = () => {
     const val = parseFloat(budgetDraft);
     if (isNaN(val) || val <= 0) return;
     try {
-      const response = await axios.put(`http://localhost:8080/api/v1/trips/${id}/tracker/budget`, val, {
+      const response = await axios.put(`https://college-project-backend-production.up.railway.app/api/v1/trips/${id}/tracker/budget`, val, {
         headers: { 'Content-Type': 'application/json' }
       });
       setTracker(response.data);
@@ -70,7 +70,7 @@ const ExpenseTrackerView = () => {
   const handleRemoveMember = async (memberName) => {
     const updatedMembers = tracker.memberNames.filter(m => m !== memberName);
     try {
-      const response = await axios.put(`http://localhost:8080/api/v1/trips/${id}/tracker/members`, updatedMembers);
+      const response = await axios.put(`https://college-project-backend-production.up.railway.app/api/v1/trips/${id}/tracker/members`, updatedMembers);
       setTracker(response.data);
     } catch (error) {
       console.error('Failed to remove member', error);
@@ -108,7 +108,7 @@ const ExpenseTrackerView = () => {
 
     setIsSubmitting(true);
     try {
-      await axios.post(`http://localhost:8080/api/v1/trips/${id}/tracker/expenses`, payload);
+      await axios.post(`https://college-project-backend-production.up.railway.app/api/v1/trips/${id}/tracker/expenses`, payload);
       setDesc('');
       setTotal('');
       setCustomSplits({});
@@ -122,7 +122,7 @@ const ExpenseTrackerView = () => {
 
   const handleDeleteExpense = async (expenseId) => {
     try {
-      await axios.delete(`http://localhost:8080/api/v1/trips/${id}/tracker/expenses/${expenseId}`);
+      await axios.delete(`https://college-project-backend-production.up.railway.app/api/v1/trips/${id}/tracker/expenses/${expenseId}`);
       fetchTracker();
     } catch (error) {
       console.error('Failed to delete expense', error);

@@ -78,7 +78,7 @@ const WizardView = () => {
     try {
       const firebaseUid = auth.currentUser?.uid || null;
       const payload = { ...formData, firebaseUid };
-      const response = await axios.post('http://localhost:8080/api/v1/trips/generate', payload);
+      const response = await axios.post('https://college-project-backend-production.up.railway.app/api/v1/trips/generate', payload);
       setIsGenerating(false);
       navigate(`/trip/${response.data?.id}`, { state: { trip: response.data } });
     } catch (error) {

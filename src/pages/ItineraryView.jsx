@@ -72,7 +72,7 @@ const ItineraryView = () => {
   // Fetch trip from API if location.state is missing (e.g. hard page refresh)
   useEffect(() => {
     if (!location.state?.trip && id) {
-      axios.get(`http://localhost:8080/api/v1/trips/${id}`)
+      axios.get(`https://college-project-backend-production.up.railway.app/api/v1/trips/${id}`)
         .then(res => setFetchedTrip(res.data))
         .catch(err => console.error('Failed to fetch trip by ID:', err));
     }
@@ -84,7 +84,7 @@ const ItineraryView = () => {
     const lng = resolvedTrip?.destinationLng;
     if (!lat || !lng) return;
     const dest = encodeURIComponent(resolvedTrip.destination || '');
-    axios.get(`http://localhost:8080/api/v1/hotels/suggestions?lat=${lat}&lng=${lng}&radius=30000&destination=${dest}`)
+    axios.get(`https://college-project-backend-production.up.railway.app/api/v1/hotels/suggestions?lat=${lat}&lng=${lng}&radius=30000&destination=${dest}`)
       .then(res => setHotelSuggestions(res.data || []))
       .catch(() => setHotelSuggestions([]));
   }, [resolvedTrip?.id]);
@@ -374,7 +374,7 @@ const ItineraryView = () => {
           const dayId = currentDay.id || currentDay.dayNumber;
           if (!dayId) return;
           try {
-              const response = await axios.put(`http://localhost:8080/api/v1/trips/days/${dayId}/activities/weather/sync`);
+              const response = await axios.put(`https://college-project-backend-production.up.railway.app/api/v1/trips/days/${dayId}/activities/weather/sync`);
               if (response.data && response.data.activities) {
                   setLocalActivities(response.data.activities);
               }
@@ -394,7 +394,7 @@ const ItineraryView = () => {
           return;
       }
       try {
-          const response = await axios.put(`http://localhost:8080/api/v1/trips/days/${dayId}/activities/weather/sync`);
+          const response = await axios.put(`https://college-project-backend-production.up.railway.app/api/v1/trips/days/${dayId}/activities/weather/sync`);
           if (response.data && response.data.activities) {
               setLocalActivities(response.data.activities);
               addToast({ type: 'success', message: 'Weather successfully synced for this day.' });
@@ -415,7 +415,7 @@ const ItineraryView = () => {
               addToast({ type: 'warning', message: 'Mock UI mode. Please generate a real trip to use this feature.' });
               setIsUpdating(false); return;
           }
-          const response = await axios.put(`http://localhost:8080/api/v1/trips/days/${dayId}/activities`, localActivities);
+          const response = await axios.put(`https://college-project-backend-production.up.railway.app/api/v1/trips/days/${dayId}/activities`, localActivities);
           setLocalActivities(response.data.activities);
           setIsDirty(false);
           setIsUpdating(false);
@@ -439,7 +439,7 @@ const ItineraryView = () => {
           const endLat = parseFloat(activeAct.lat || activeAct.latitude);
           const endLng = parseFloat(activeAct.lng || activeAct.longitude);
           
-          const response = await axios.get(`http://localhost:8080/api/v1/trips/routing/directions?startLat=${userLocation[0]}&startLng=${userLocation[1]}&endLat=${endLat}&endLng=${endLng}`);
+          const response = await axios.get(`https://college-project-backend-production.up.railway.app/api/v1/trips/routing/directions?startLat=${userLocation[0]}&startLng=${userLocation[1]}&endLat=${endLat}&endLng=${endLng}`);
           
           if (response.data && response.data.geometry) {
               const geoData = JSON.parse(response.data.geometry);

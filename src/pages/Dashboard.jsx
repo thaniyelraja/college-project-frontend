@@ -82,7 +82,7 @@ const Dashboard = () => {
 
   const fetchTrips = async uid => {
     try {
-      const res = await axios.get(`http://localhost:8080/api/v1/trips?firebaseUid=${uid}`);
+      const res = await axios.get(`https://college-project-backend-production.up.railway.app/api/v1/trips?firebaseUid=${uid}`);
       setTrips(res.data || []);
     } catch (e) {
       console.error('Failed to fetch trips:', e);
@@ -103,7 +103,7 @@ const Dashboard = () => {
     setOpenMenuId(null);
     setDeletingId(tripId);
     try {
-      await axios.delete(`http://localhost:8080/api/v1/trips/${tripId}`);
+      await axios.delete(`https://college-project-backend-production.up.railway.app/api/v1/trips/${tripId}`);
       setTrips(p => p.filter(t => t.id !== tripId));
       addToast({ type: 'success', message: 'Trip deleted successfully.' });
     } catch {
@@ -197,14 +197,14 @@ const Dashboard = () => {
       {/* ── MY TRIPS / OR LOGIN CTA ────────────────────────────────────────── */}
       {isAuthenticated ? (
         <section id="my-trips" className="max-w-7xl mx-auto px-6 lg:px-8 py-20">
-        <div className="flex items-end justify-between mb-12">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 md:mb-12 gap-5 sm:gap-0">
           <div>
             <span className="text-xs font-semibold uppercase tracking-wider text-muted block mb-2">Your travels</span>
             <h2 className="font-serif text-4xl font-bold text-[#1A1A1A] tracking-tight">My Trips</h2>
           </div>
           <button
             onClick={() => navigate('/create')}
-            className="hidden sm:flex items-center gap-2 bg-[#1A1A1A] text-white px-6 py-3 text-sm font-semibold rounded-lg hover:bg-[#D4AF37] hover:text-[#1A1A1A] transition-all duration-300"
+            className="w-full sm:w-auto flex justify-center items-center gap-2 bg-[#1A1A1A] text-white px-6 py-3 text-sm font-semibold rounded-lg hover:bg-[#D4AF37] hover:text-[#1A1A1A] transition-all duration-300"
           >
             <span>+ Plan New Trip</span>
           </button>
