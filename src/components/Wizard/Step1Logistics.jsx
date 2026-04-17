@@ -149,7 +149,7 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
             <MapPin className="absolute left-0 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/60" />
             <input 
               type="text" 
-              placeholder="Start typing a city or region..."
+              placeholder="Start typing a city..."
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
