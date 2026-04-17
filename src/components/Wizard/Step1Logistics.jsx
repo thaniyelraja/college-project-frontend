@@ -126,8 +126,8 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
   useEffect(() => {
     if (data.startTime < minStartTime) {
       updateData('startTime', minStartTime);
-      if (data.endTime < minStartTime + 2) {
-          updateData('endTime', minStartTime + 2);
+      if (data.endTime < minStartTime + 4) {
+          updateData('endTime', minStartTime + 4);
       }
     }
   }, [minStartTime, data.startTime, data.endTime]);
@@ -255,11 +255,11 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
                  <Clock className="w-4 h-4 text-primary" />
                  <input 
                   type="range" 
-                  min={minStartTime} max="21" 
+                  min={minStartTime} max="19" 
                   value={validStartTime}
                   onChange={(e) => {
                     let val = parseInt(e.target.value);
-                    if (val > data.endTime - 2) val = data.endTime - 2;
+                    if (val > data.endTime - 4) val = data.endTime - 4;
                     updateData('startTime', val);
                   }}
                   className="w-full accent-primary bg-primary/10 h-1 appearance-none rounded-full"
@@ -273,11 +273,11 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
                  <Clock className="w-4 h-4 text-primary" />
                  <input 
                   type="range" 
-                  min="7" max="23" 
+                  min="9" max="23" 
                   value={data.endTime}
                   onChange={(e) => {
                     let val = parseInt(e.target.value);
-                    if (val < data.startTime + 2) val = data.startTime + 2;
+                    if (val < data.startTime + 4) val = data.startTime + 4;
                     updateData('endTime', val);
                   }}
                   className="w-full accent-primary bg-primary/10 h-1 appearance-none rounded-full"
@@ -285,6 +285,13 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
               </div>
             </div>
           </div>
+          
+          {(data.endTime - data.startTime <= 4) && (
+            <div className="mt-4 flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
+               <AlertTriangle className="w-4 h-4 text-amber-500" />
+               <span className="text-[11px] uppercase tracking-widest font-sans text-amber-600 font-medium">Minimum time frame of 4 hours reached</span>
+            </div>
+          )}
         </div>
 
       </div>
@@ -316,7 +323,7 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
 
         <button 
           onClick={onNext}
-          disabled={!data.destination || !data.lat || !data.startDate || (data.endTime - data.startTime < 2) || !!dateConflict || !!locationError}
+          disabled={!data.destination || !data.lat || !data.startDate || (data.endTime - data.startTime < 4) || !!dateConflict || !!locationError}
           className="inline-flex items-center gap-2 bg-primary text-white px-8 py-3.5 rounded-xl font-sans font-semibold text-sm hover:bg-primary/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
         >
           My Preferences <ArrowRight className="w-4 h-4" />
