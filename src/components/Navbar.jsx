@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, signOut } from '../services/firebase';
 import { Compass, User, LogOut, Menu, X } from 'lucide-react';

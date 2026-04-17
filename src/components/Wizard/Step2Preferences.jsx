@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { ArrowLeft, Sparkles, Users, Wallet, AlertTriangle } from 'lucide-react';
 
 // Interest definitions — key matches backend INTEREST_OTM_MAP exactly
