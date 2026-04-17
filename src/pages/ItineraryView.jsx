@@ -69,9 +69,9 @@ const ItineraryView = () => {
   const safeDays = resolvedTrip.days && resolvedTrip.days.length > 0 ? [...resolvedTrip.days].sort((a, b) => a.dayNumber - b.dayNumber) : mockItinerary.days;
   const currentDay = safeDays[activeDay] || safeDays[0];
 
-  // Fetch trip from API if location.state is missing (e.g. hard page refresh)
+  // Fetch trip from API to enforce absolute source of truth
   useEffect(() => {
-    if (!location.state?.trip && id) {
+    if (id) {
       axios.get(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/${id}`)
         .then(res => setFetchedTrip(res.data))
         .catch(err => console.error('Failed to fetch trip by ID:', err));
@@ -397,6 +397,9 @@ const ItineraryView = () => {
           const response = await axios.put(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/days/${dayId}/activities/weather/sync`);
           if (response.data && response.data.activities) {
               setLocalActivities(response.data.activities);
+              if (id) {
+                 axios.get(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/${id}`).then(res => setFetchedTrip(res.data));
+              }
               addToast({ type: 'success', message: 'Weather successfully synced for this day.' });
           }
       } catch (error) {
@@ -417,6 +420,9 @@ const ItineraryView = () => {
           }
           const response = await axios.put(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/days/${dayId}/activities`, localActivities);
           setLocalActivities(response.data.activities);
+          if (id) {
+             axios.get(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/${id}`).then(res => setFetchedTrip(res.data));
+          }
           setIsDirty(false);
           setIsUpdating(false);
           addToast({ type: 'success', message: 'Itinerary recalculated and saved successfully.' });
