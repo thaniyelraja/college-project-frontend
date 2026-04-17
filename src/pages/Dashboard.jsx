@@ -338,10 +338,10 @@ const Dashboard = () => {
               <h2 className="font-serif text-4xl font-bold text-white mb-4 tracking-tight">Plan smarter trips with AI</h2>
               <p className="text-white/60 mb-10 max-w-xl mx-auto text-sm leading-relaxed">Sign in to save your trips, get personalised itineraries, track expenses, and travel smarter.</p>
               <button 
-                onClick={() => navigate('/login')} 
+                onClick={() => navigate('/signup')} 
                 className="bg-[#D4AF37] hover:bg-white text-[#1A1A1A] transition-all duration-500 px-10 py-4 text-sm font-bold rounded-xl shadow-xl hover:-translate-y-1"
               >
-                 Sign In to Get Started
+                 Get Started
               </button>
            </div>
         </section>
