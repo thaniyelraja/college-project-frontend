@@ -22,10 +22,28 @@ const ExpenseTrackerView = () => {
   const [customSplits, setCustomSplits] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [expandedPerson, setExpandedPerson] = useState(null); // for per-person expense accordion
+  const [includedMembers, setIncludedMembers] = useState([]); // tracks participants for Equal split
 
   useEffect(() => {
     fetchTracker();
   }, [id]);
+
+  useEffect(() => {
+    if (tracker && tracker.memberNames) {
+      setIncludedMembers(prev => {
+         if (prev.length === 0) return tracker.memberNames;
+         const valid = prev.filter(m => tracker.memberNames.includes(m));
+         return valid.length > 0 ? valid : tracker.memberNames;
+      });
+    }
+  }, [tracker?.memberNames]);
+
+  const toggleIncludedMember = (m) => {
+    setIncludedMembers(prev => {
+      if (prev.includes(m)) return prev.filter(name => name !== m);
+      return [...prev, m];
+    });
+  };
 
   const fetchTracker = async () => {
     try {
@@ -86,8 +104,9 @@ const ExpenseTrackerView = () => {
     if (isNaN(totalNum) || totalNum <= 0) return;
 
     if (splitMode === 'Equal') {
-      const splitAmt = totalNum / tracker.memberNames.length;
-      tracker.memberNames.forEach(m => {
+      if (includedMembers.length === 0) return;
+      const splitAmt = totalNum / includedMembers.length;
+      includedMembers.forEach(m => {
         finalSplits[m] = splitAmt;
       });
     } else {
@@ -475,6 +494,24 @@ const ExpenseTrackerView = () => {
                   </button>
                 </div>
 
+                {splitMode === 'Equal' && tracker.memberNames.length > 0 && (
+                  <div className="flex gap-4 mb-4 items-center overflow-x-auto pb-2">
+                    <span className="text-[10px] uppercase tracking-widest text-[#212121]/50 py-2 min-w-max">Include:</span>
+                    {tracker.memberNames.map(m => {
+                      const isActive = includedMembers.includes(m);
+                      return (
+                        <button 
+                          key={m}
+                          onClick={() => toggleIncludedMember(m)}
+                          className={`px-4 py-2 text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${isActive ? 'bg-[#212121] text-white' : 'bg-[#FAFAFA] border border-[#212121]/10 text-[#212121]/40 hover:border-[#212121]/30'}`}
+                        >
+                          {isActive ? '✓ ' : ''}{m}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
                 {splitMode === 'Custom' && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-[#FAFAFA] border border-[#212121]/10">
                     {tracker.memberNames.map(m => (
@@ -500,7 +537,8 @@ const ExpenseTrackerView = () => {
                   const numTot = parseFloat(total) || 0;
                   const cSum = Object.values(customSplits).reduce((s, v) => s + (parseFloat(v) || 0), 0);
                   const isMiss = splitMode === 'Custom' && Math.abs(cSum - numTot) > 0.01;
-                  const isBlock = !desc || !total || !payer || numTot <= 0 || isMiss;
+                  const isEmptyEqual = splitMode === 'Equal' && includedMembers.length === 0;
+                  const isBlock = !desc || !total || !payer || numTot <= 0 || isMiss || isEmptyEqual;
                   return (
                     <>
                       {isMiss && numTot > 0 && (
