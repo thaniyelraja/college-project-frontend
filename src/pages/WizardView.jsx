@@ -36,10 +36,10 @@ const WizardView = () => {
       return () => clearInterval(interval);
   }, [isGenerating]);
 
-  // Force absolute viewport reset on navigation entry
+  // Force absolute viewport reset on navigation entry or step change
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+  }, [step]);
   
   // Master Form State perfectly mapped to the Backend DTO
   const [formData, setFormData] = useState({
