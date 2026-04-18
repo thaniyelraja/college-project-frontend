@@ -238,6 +238,11 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
                   className={`w-full bg-transparent font-sans text-sm focus:outline-none ${isDateInvalid ? 'text-red-600' : ''}`}
                 />
               </div>
+              {isDateInvalid && (
+                 <p className="text-[11px] text-red-500 mt-1.5 font-sans font-medium px-1 absolute -bottom-5 w-full">
+                   Invalid date. Must be within one month.
+                 </p>
+              )}
             </div>
             <div className="relative">
               <span className="block text-xs font-semibold text-muted mb-2">Trip Length: {data.durationDays} {data.durationDays === 1 ? 'day' : 'days'}</span>
@@ -321,21 +326,6 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
               You already have a trip to <strong>{dateConflict.destination?.split(',')[0]}</strong> from{' '}
               <strong>{dateConflict.startDate}</strong> to <strong>{dateConflict.endDate}</strong>.
               Please choose different dates.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Invalid Date Warning */}
-      {isDateInvalid && (
-        <div className="mt-8 flex items-start gap-3 px-5 py-4 bg-red-50 border border-red-200">
-          <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-[11px] font-sans uppercase tracking-widest text-red-600 font-semibold">
-              Invalid Date
-            </p>
-            <p className="text-xs text-red-500 mt-1 font-sans font-light">
-              We cannot plan trips in the past or more than a month in advance. Please enter a valid date.
             </p>
           </div>
         </div>
