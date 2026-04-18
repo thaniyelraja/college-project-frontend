@@ -117,7 +117,7 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
   maxDateObj.setMonth(maxDateObj.getMonth() + 1);
   const maxDateStr = maxDateObj.toISOString().split('T')[0];
 
-  const isDateInvalid = data.startDate ? (data.startDate < todayDate || data.startDate > maxDateStr) : false;
+  const isDateInvalid = !data.startDate || (data.startDate < todayDate || data.startDate > maxDateStr);
 
   // Dynamic Temporal Constraints
   const isToday = data.startDate === todayDate;
