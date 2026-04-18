@@ -13,6 +13,7 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
   const [isSearching, setIsSearching] = useState(false);
   const [dateConflict, setDateConflict] = useState(null); // null | { destination, startDate, endDate }
   const [locationError, setLocationError] = useState('');
+  const [hasTouchedDate, setHasTouchedDate] = useState(false);
 
   // Auto-calculate end date
   useEffect(() => {
@@ -117,7 +118,7 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
   maxDateObj.setMonth(maxDateObj.getMonth() + 1);
   const maxDateStr = maxDateObj.toISOString().split('T')[0];
 
-  const isDateInvalid = !data.startDate || (data.startDate < todayDate || data.startDate > maxDateStr);
+  const isDateInvalid = hasTouchedDate && (!data.startDate || (data.startDate < todayDate) || (data.startDate > maxDateStr));
 
   // Dynamic Temporal Constraints
   const isToday = data.startDate === todayDate;
@@ -160,6 +161,15 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
                 if (data.destination) updateData('destination', ''); // Clear selected if typing
               }}
               onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  if (suggestions.length === 0) {
+                    setLocationError("Please select a valid destination from the suggestions.");
+                  } else {
+                    selectPlace(suggestions[activeSuggestion]);
+                  }
+                  return;
+                }
                 if (suggestions.length === 0) return;
                 if (e.key === 'ArrowDown') {
                   e.preventDefault();
@@ -167,9 +177,6 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
                 } else if (e.key === 'ArrowUp') {
                   e.preventDefault();
                   setActiveSuggestion((prev) => (prev > 0 ? prev - 1 : 0));
-                } else if (e.key === 'Enter') {
-                  e.preventDefault();
-                  selectPlace(suggestions[activeSuggestion]);
                 }
               }}
               className="w-full bg-transparent border-none p-4 pl-10 text-2xl font-serif focus:outline-none focus:ring-0 placeholder:text-muted/30"
@@ -224,7 +231,10 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
                   min={todayDate}
                   max={maxDateStr}
                   value={data.startDate}
-                  onChange={(e) => updateData('startDate', e.target.value)}
+                  onChange={(e) => {
+                    setHasTouchedDate(true);
+                    updateData('startDate', e.target.value);
+                  }}
                   className={`w-full bg-transparent font-sans text-sm focus:outline-none ${isDateInvalid ? 'text-red-600' : ''}`}
                 />
               </div>
