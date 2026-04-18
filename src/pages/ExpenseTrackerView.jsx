@@ -310,8 +310,12 @@ const ExpenseTrackerView = () => {
             <div className="flex gap-2">
               <input 
                 type="text" 
+                maxLength={20}
                 value={newMember}
-                onChange={e => setNewMember(e.target.value)}
+                onChange={e => {
+                  const val = e.target.value.replace(/[^A-Za-z\s]/g, '');
+                  setNewMember(val);
+                }}
                 onKeyDown={e => e.key === 'Enter' && handleAddMember()}
                 placeholder="Person's name"
                 className="flex-1 bg-white border border-[#212121]/10 rounded-none px-4 py-3 text-xs text-[#212121] outline-none focus:border-[#212121] transition-colors placeholder-[#212121]/30"
