@@ -2,7 +2,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { auth, googleProvider, signInWithPopup, getAdditionalUserInfo, deleteUser, signOut } from '../services/firebase';
 import { Compass } from 'lucide-react';
-import axios from 'axios';
+import api from '../api/axios';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ const Signup = () => {
       const res = await signInWithPopup(auth, googleProvider);
       
       try {
-        const existsRes = await axios.get(`https://caring-analysis-production-2d57.up.railway.app/api/v1/users/exists/${res.user.uid}`);
+        const existsRes = await api.get(`/users/exists/${res.user.uid}`);
         
         if (existsRes.data === true) {
           await signOut(auth);
@@ -33,7 +33,7 @@ const Signup = () => {
           return;
         }
         
-        await axios.post('https://caring-analysis-production-2d57.up.railway.app/api/v1/users', {
+        await api.post('/users', {
           firebaseUid: res.user.uid,
           name: res.user.displayName || 'Voyager',
           email: res.user.email

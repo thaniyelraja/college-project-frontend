@@ -18,57 +18,62 @@ function App() {
     <ErrorBoundary>
       <NetworkStatusIndicator />
       <ToastProvider>
-        <Router>
-        <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/contact" element={<Contact />} />
-        
-        {/* Public Landing Dashboard */}
-        <Route path="/" element={<Dashboard />} />
-        
-        {/* Protected Routes */}
-        
-        <Route 
-          path="/create" 
-          element={
-            <ProtectedRoute>
-              <WizardView />
-            </ProtectedRoute>
-          } 
-        />
-        
-        <Route 
-          path="/trip/:id" 
-          element={
-            <ProtectedRoute>
-              <ItineraryView />
-            </ProtectedRoute>
-          } 
-        />
+        <Router
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/contact" element={<Contact />} />
+            
+            {/* Public Landing Dashboard */}
+            <Route path="/" element={<Dashboard />} />
+            
+            {/* Protected Routes */}
+            <Route 
+              path="/create" 
+              element={
+                <ProtectedRoute>
+                  <WizardView />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/trip/:id" 
+              element={
+                <ProtectedRoute>
+                  <ItineraryView />
+                </ProtectedRoute>
+              } 
+            />
 
-        <Route 
-          path="/trip/:id/expenses" 
-          element={
-            <ProtectedRoute>
-              <ExpenseTrackerView />
-            </ProtectedRoute>
-          } 
-        />
+            <Route 
+              path="/trip/:id/expenses" 
+              element={
+                <ProtectedRoute>
+                  <ExpenseTrackerView />
+                </ProtectedRoute>
+              } 
+            />
 
-        <Route 
-          path="/profile" 
-          element={
-            <ProtectedRoute>
-              <ProfileView />
-            </ProtectedRoute>
-          } 
-        />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <ProfileView />
+                </ProtectedRoute>
+              } 
+            />
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+
       </ToastProvider>
     </ErrorBoundary>
   );

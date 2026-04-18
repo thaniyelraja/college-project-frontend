@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { ArrowLeft, Sparkles, Users, Wallet, AlertTriangle } from 'lucide-react';
 
 // Interest definitions — key matches backend INTEREST_OTM_MAP exactly
@@ -44,7 +44,7 @@ const Step2Preferences = ({ data, updateData, onBack, onGenerate, isGenerating, 
 
 
   const handleGenerate = () => {
-    if (belowMinimum || !data.budget || data.budget <= 0 || data.budget > 10000000) return; // guarded, button is also disabled
+    if (belowMinimum) return;
     onGenerate();
   };
 
@@ -66,7 +66,7 @@ const Step2Preferences = ({ data, updateData, onBack, onGenerate, isGenerating, 
             <select
               value={data.groupType}
               onChange={(e) => updateData('groupType', e.target.value)}
-              className="w-full bg-transparent border border-primary/20 p-4 font-sans font-light focus:outline-none focus:border-primary transition-colors appearance-none"
+              className="w-full bg-transparent border border-primary/20 p-4 font-sans font-light focus:outline-none focus:border-primary transition-colors cursor-pointer"
             >
               <option value="Solo">Solo Expedition</option>
               <option value="Couple">Couple's Retreat</option>
@@ -76,55 +76,20 @@ const Step2Preferences = ({ data, updateData, onBack, onGenerate, isGenerating, 
           </div>
 
           <div>
-            <label className="flex items-center gap-2 font-sans text-xs uppercase tracking-widest text-primary mb-6 border-b border-primary/10 pb-2">
-              <Wallet className="w-4 h-4" /> 5. Spending Limit
+            <label className="flex items-center gap-2 font-sans text-xs uppercase tracking-widest text-primary mb-4 border-b border-primary/10 pb-2">
+              <Wallet className="w-4 h-4" /> 5. Budget Tier
             </label>
-            <div className="relative">
-              <span className="absolute left-0 top-1/2 -translate-y-1/2 text-muted font-serif text-xl pointer-events-none">₹</span>
-              <input
-                type="number"
-                min="1"
-                max="10000000"
-                step="500"
-                value={data.budget || ''}
-                onChange={(e) => {
-                  const rawVal = e.target.value;
-                  if (rawVal === '') {
-                    updateData('budget', '');
-                    return;
-                  }
-                  const val = parseFloat(rawVal);
-                  if (!isNaN(val)) {
-                    updateData('budget', val);
-                  }
-                }}
-                onKeyDown={(e) => {
-                  if (['-', 'e', 'E', '+'].includes(e.key)) {
-                    e.preventDefault();
-                  }
-                }}
-                placeholder="e.g. 25000"
-                className={`w-full bg-transparent border-b pl-6 pr-4 py-3 font-serif text-2xl focus:outline-none transition-colors placeholder:text-muted/30 ${(!data.budget || data.budget <= 0)
-                    ? 'border-red-300 focus:border-red-500'
-                    : 'border-primary/20 focus:border-primary'
-                  }`}
-              />
-            </div>
-            {(!data.budget || data.budget <= 0) && (
-              <p className="text-[10px] text-red-400 font-sans uppercase tracking-widest mt-2">
-                Enter a budget amount greater than 0
-              </p>
-            )}
-            {data.budget > 10000000 && (
-              <p className="text-[10px] text-red-400 font-sans uppercase tracking-widest mt-2">
-                Budget cannot exceed ₹1,00,00,000
-              </p>
-            )}
-            {data.budget > 0 && data.budget <= 10000000 && (
-              <p className="text-[10px] text-emerald-500 font-sans uppercase tracking-widest mt-2">
-                ₹{Number(data.budget).toLocaleString('en-IN')} allocated
-              </p>
-            )}
+
+            {/* Budget Type Dropdown */}
+            <select
+              value={data.budgetType || 'normal'}
+              onChange={(e) => updateData('budgetType', e.target.value)}
+              className="w-full bg-transparent border border-primary/20 p-4 font-sans font-light focus:outline-none focus:border-primary transition-colors cursor-pointer"
+            >
+              <option value="economy">Economy</option>
+              <option value="normal">Normal</option>
+              <option value="luxury">Luxury</option>
+            </select>
           </div>
         </div>
 
@@ -208,8 +173,8 @@ const Step2Preferences = ({ data, updateData, onBack, onGenerate, isGenerating, 
 
         <button
           onClick={handleGenerate}
-          disabled={isGenerating || belowMinimum || !data.budget || data.budget <= 0 || data.budget > 10000000}
-          title={belowMinimum ? `Select at least ${MIN_ACTIVE} interests` : (!data.budget || data.budget <= 0 || data.budget > 10000000) ? 'Enter a valid budget' : ''}
+          disabled={isGenerating || belowMinimum}
+          title={belowMinimum ? `Select at least ${MIN_ACTIVE} interests` : ''}
           className="inline-flex items-center gap-2 bg-primary text-white px-10 py-4 rounded-xl font-sans font-semibold text-sm hover:bg-primary/90 transition-all duration-300 hover:shadow-lg group disabled:opacity-40 disabled:pointer-events-none"
         >
           {isGenerating ? (

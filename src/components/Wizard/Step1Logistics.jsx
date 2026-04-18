@@ -3,6 +3,7 @@ import { Compass, MapPin, Calendar, Clock, ArrowRight, ArrowLeft, AlertTriangle 
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { auth } from '../../services/firebase';
+import api from '../../api/axios';
 
 const Step1Logistics = ({ data, updateData, onNext }) => {
   const navigate = useNavigate();
@@ -30,8 +31,8 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
 
     const timer = setTimeout(async () => {
       try {
-        const res = await axios.get(
-          `https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/date-conflict?firebaseUid=${uid}&startDate=${data.startDate}&endDate=${data.endDate}`
+        const res = await api.get(
+          `/trips/date-conflict?firebaseUid=${uid}&startDate=${data.startDate}&endDate=${data.endDate}`
         );
         if (res.data.conflict) {
           setDateConflict(res.data);
@@ -326,7 +327,7 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
           disabled={!data.destination || !data.lat || !data.startDate || (data.endTime - data.startTime < 4) || !!dateConflict || !!locationError}
           className="inline-flex items-center gap-2 bg-primary text-white px-8 py-3.5 rounded-xl font-sans font-semibold text-sm hover:bg-primary/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
         >
-          My Preferences <ArrowRight className="w-4 h-4" />
+          Next  <ArrowRight className="w-4 h-4" />
         </button>
       </div>
     </div>

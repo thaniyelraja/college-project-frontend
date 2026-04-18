@@ -1,9 +1,9 @@
 ﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, signOut, deleteUser } from '../services/firebase';
-import axios from 'axios';
 import { User, Mail, Trash2, LogOut, ArrowLeft, Shield, AlertTriangle } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import api from '../api/axios';
 
 const ProfileView = () => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const ProfileView = () => {
     setError('');
     try {
       // Step 1: Remove from DB (cascades trips, expenses, etc.)
-      await axios.delete(`https://caring-analysis-production-2d57.up.railway.app/api/v1/users/${user.uid}`);
+      await api.delete(`/users/${user.uid}`);
 
       // Step 2: Remove Firebase Auth account
       await deleteUser(user);

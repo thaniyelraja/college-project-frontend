@@ -1,6 +1,6 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios';
 
 const ExpenseTrackerView = () => {
   const { id } = useParams();
@@ -22,7 +22,8 @@ const ExpenseTrackerView = () => {
   const [customSplits, setCustomSplits] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [expandedPerson, setExpandedPerson] = useState(null); // for per-person expense accordion
-  const [includedMembers, setIncludedMembers] = useState([]); // tracks participants for Equal split
+  const [includeMode, setIncludeMode] = useState('All'); // All or Specific
+  const [includedMembers, setIncludedMembers] = useState([]); // tracks participants for Specific split
 
   useEffect(() => {
     fetchTracker();
@@ -47,7 +48,7 @@ const ExpenseTrackerView = () => {
 
   const fetchTracker = async () => {
     try {
-      const response = await axios.get(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/${id}/tracker`);
+      const response = await api.get(`/trips/${id}/tracker`);
       setTracker(response.data);
       setLoading(false);
     } catch (error) {
@@ -61,7 +62,7 @@ const ExpenseTrackerView = () => {
     
     const updatedMembers = [...tracker.memberNames, newMember.trim()];
     try {
-      const response = await axios.put(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/${id}/tracker/members`, updatedMembers);
+      const response = await api.put(`/trips/${id}/tracker/members`, updatedMembers);
       setTracker(response.data);
       setNewMember('');
     } catch (error) {
@@ -75,9 +76,7 @@ const ExpenseTrackerView = () => {
     const val = parseFloat(budgetDraft);
     if (isNaN(val) || val <= 0) return;
     try {
-      const response = await axios.put(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/${id}/tracker/budget`, val, {
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const response = await api.put(`/trips/${id}/tracker/budget`, val);
       setTracker(response.data);
       setIsEditingBudget(false);
     } catch (error) {
@@ -88,7 +87,7 @@ const ExpenseTrackerView = () => {
   const handleRemoveMember = async (memberName) => {
     const updatedMembers = tracker.memberNames.filter(m => m !== memberName);
     try {
-      const response = await axios.put(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/${id}/tracker/members`, updatedMembers);
+      const response = await api.put(`/trips/${id}/tracker/members`, updatedMembers);
       setTracker(response.data);
     } catch (error) {
       console.error('Failed to remove member', error);
@@ -103,19 +102,23 @@ const ExpenseTrackerView = () => {
 
     if (isNaN(totalNum) || totalNum <= 0) return;
 
+    const activeMembers = includeMode === 'All' ? tracker.memberNames : includedMembers;
+
     if (splitMode === 'Equal') {
-      if (includedMembers.length === 0) return;
-      const splitAmt = totalNum / includedMembers.length;
-      includedMembers.forEach(m => {
+      if (activeMembers.length === 0) return;
+      const splitAmt = totalNum / activeMembers.length;
+      activeMembers.forEach(m => {
         finalSplits[m] = splitAmt;
       });
     } else {
       let customSum = 0;
-      Object.keys(customSplits).forEach(m => {
+      activeMembers.forEach(m => {
         customSum += (parseFloat(customSplits[m]) || 0);
       });
       if (Math.abs(customSum - totalNum) > 0.01) return;
-      finalSplits = customSplits;
+      activeMembers.forEach(m => {
+        if (customSplits[m]) finalSplits[m] = parseFloat(customSplits[m]);
+      });
     }
 
     const payload = {
@@ -127,7 +130,7 @@ const ExpenseTrackerView = () => {
 
     setIsSubmitting(true);
     try {
-      await axios.post(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/${id}/tracker/expenses`, payload);
+      await api.post(`/trips/${id}/tracker/expenses`, payload);
       setDesc('');
       setTotal('');
       setCustomSplits({});
@@ -141,7 +144,7 @@ const ExpenseTrackerView = () => {
 
   const handleDeleteExpense = async (expenseId) => {
     try {
-      await axios.delete(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/${id}/tracker/expenses/${expenseId}`);
+      await api.post(`/trips/${id}/tracker/expenses`, payload);
       fetchTracker();
     } catch (error) {
       console.error('Failed to delete expense', error);
@@ -478,25 +481,25 @@ const ExpenseTrackerView = () => {
               </div>
 
               <div className="mb-8">
+                {/* 1. Who is Included Segment */}
                 <div className="flex gap-4 mb-4 items-center">
-                  <span className="text-[10px] uppercase tracking-widest text-[#212121]/50 py-2 min-w-max">How to split:</span>
+                  <span className="text-[10px] uppercase tracking-widest text-[#212121]/50 py-2 min-w-max">Who is included:</span>
                   <button 
-                    onClick={() => setSplitMode('Equal')}
-                    className={`px-4 py-2 text-[10px] uppercase tracking-widest transition-all ${splitMode === 'Equal' ? 'bg-[#212121]/5 text-[#212121] font-bold border border-[#212121]' : 'text-[#212121]/50 hover:text-[#212121] border border-transparent'}`}
+                    onClick={() => setIncludeMode('All')}
+                    className={`px-4 py-2 text-[10px] uppercase tracking-widest transition-all ${includeMode === 'All' ? 'bg-[#212121]/5 text-[#212121] font-bold border border-[#212121]' : 'text-[#212121]/50 hover:text-[#212121] border border-transparent'}`}
                   >
-                    Equal
+                    Everyone
                   </button>
                   <button 
-                    onClick={() => setSplitMode('Custom')}
-                    className={`px-4 py-2 text-[10px] uppercase tracking-widest transition-all ${splitMode === 'Custom' ? 'bg-[#212121]/5 text-[#212121] font-bold border border-[#212121]' : 'text-[#212121]/50 hover:text-[#212121] border border-transparent'}`}
+                    onClick={() => setIncludeMode('Specific')}
+                    className={`px-4 py-2 text-[10px] uppercase tracking-widest transition-all ${includeMode === 'Specific' ? 'bg-[#212121]/5 text-[#212121] font-bold border border-[#212121]' : 'text-[#212121]/50 hover:text-[#212121] border border-transparent'}`}
                   >
-                    Custom
+                    Specific People
                   </button>
                 </div>
 
-                {splitMode === 'Equal' && tracker.memberNames.length > 0 && (
-                  <div className="flex gap-4 mb-4 items-center overflow-x-auto pb-2">
-                    <span className="text-[10px] uppercase tracking-widest text-[#212121]/50 py-2 min-w-max">Include:</span>
+                {includeMode === 'Specific' && tracker.memberNames.length > 0 && (
+                  <div className="flex gap-4 mb-6 items-center overflow-x-auto pb-2 pl-4 border-l-2 border-[#212121]/10 ml-2">
                     {tracker.memberNames.map(m => {
                       const isActive = includedMembers.includes(m);
                       return (
@@ -512,33 +515,58 @@ const ExpenseTrackerView = () => {
                   </div>
                 )}
 
-                {splitMode === 'Custom' && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-[#FAFAFA] border border-[#212121]/10">
-                    {tracker.memberNames.map(m => (
-                      <div key={m} className="space-y-2">
-                        <label className="text-[10px] uppercase tracking-widest text-[#212121]/50 pl-1">{m}</label>
-                        <input 
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          placeholder="0.00"
-                          value={customSplits[m] || ''}
-                          onChange={e => setCustomSplits({...customSplits, [m]: parseFloat(e.target.value) || 0})}
-                          className="w-full bg-white border border-[#212121]/10 px-3 py-2 text-xs text-[#212121] outline-none focus:border-[#212121]"
-                        />
+                {/* 2. How to split Segment */}
+                <div className="flex gap-4 mb-4 items-center">
+                  <span className="text-[10px] uppercase tracking-widest text-[#212121]/50 py-2 min-w-max">How to split:</span>
+                  <button 
+                    onClick={() => setSplitMode('Equal')}
+                    className={`px-4 py-2 text-[10px] uppercase tracking-widest transition-all ${splitMode === 'Equal' ? 'bg-[#212121]/5 text-[#212121] font-bold border border-[#212121]' : 'text-[#212121]/50 hover:text-[#212121] border border-transparent'}`}
+                  >
+                    Equal
+                  </button>
+                  <button 
+                    onClick={() => setSplitMode('Custom')}
+                    className={`px-4 py-2 text-[10px] uppercase tracking-widest transition-all ${splitMode === 'Custom' ? 'bg-[#212121]/5 text-[#212121] font-bold border border-[#212121]' : 'text-[#212121]/50 hover:text-[#212121] border border-transparent'}`}
+                  >
+                    Custom Amounts
+                  </button>
+                </div>
+
+                {/* 3. Custom Splits UI */}
+                {(() => {
+                   const activeMembers = includeMode === 'All' ? tracker.memberNames : includedMembers;
+                   if (splitMode === 'Custom' && activeMembers.length > 0) {
+                     return (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-[#FAFAFA] border border-[#212121]/10">
+                        {activeMembers.map(m => (
+                          <div key={m} className="space-y-2">
+                            <label className="text-[10px] uppercase tracking-widest text-[#212121]/50 pl-1">{m}</label>
+                            <input 
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              placeholder="0.00"
+                              value={customSplits[m] || ''}
+                              onChange={e => setCustomSplits({...customSplits, [m]: parseFloat(e.target.value) || 0})}
+                              className="w-full bg-white border border-[#212121]/10 px-3 py-2 text-xs text-[#212121] outline-none focus:border-[#212121]"
+                            />
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                )}
+                     );
+                   }
+                   return null;
+                })()}
               </div>
 
               <div className="flex flex-col items-end">
                 {(() => {
+                  const activeMembers = includeMode === 'All' ? tracker.memberNames : includedMembers;
                   const numTot = parseFloat(total) || 0;
-                  const cSum = Object.values(customSplits).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+                  const cSum = activeMembers.reduce((s, m) => s + (parseFloat(customSplits[m]) || 0), 0);
                   const isMiss = splitMode === 'Custom' && Math.abs(cSum - numTot) > 0.01;
-                  const isEmptyEqual = splitMode === 'Equal' && includedMembers.length === 0;
-                  const isBlock = !desc || !total || !payer || numTot <= 0 || isMiss || isEmptyEqual;
+                  const isEmptyIncluded = activeMembers.length === 0;
+                  const isBlock = !desc || !total || !payer || numTot <= 0 || isMiss || isEmptyIncluded;
                   return (
                     <>
                       {isMiss && numTot > 0 && (

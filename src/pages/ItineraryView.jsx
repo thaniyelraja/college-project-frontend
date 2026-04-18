@@ -1,10 +1,10 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import Navbar from '../components/Navbar';
-import { CloudRain, Sun, Navigation, MapPin, Coffee, Utensils, Zap, ChevronUp, ChevronDown, Trash2, Star, Tag, Thermometer, Hotel, ExternalLink } from 'lucide-react';
-import axios from 'axios';
+import { CloudRain, Sun, Navigation, MapPin, Coffee, Utensils, Zap, ChevronUp, ChevronDown, Trash2, Star, Tag, Thermometer, Hotel, ExternalLink, Wallet } from 'lucide-react';
+import api from '../api/axios';
 import { useToast } from '../components/Toast';
 
 const mockItinerary = {
@@ -72,9 +72,9 @@ const ItineraryView = () => {
   // Fetch trip from API to enforce absolute source of truth
   useEffect(() => {
     if (id) {
-      axios.get(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/${id}`)
-        .then(res => setFetchedTrip(res.data))
-        .catch(err => console.error('Failed to fetch trip by ID:', err));
+      api.get(`/trips/${id}`)
+  .then(res => setFetchedTrip(res.data))
+  .catch(err => console.error('Failed to fetch trip by ID:', err));
     }
   }, [id]);
 
@@ -84,9 +84,9 @@ const ItineraryView = () => {
     const lng = resolvedTrip?.destinationLng;
     if (!lat || !lng) return;
     const dest = encodeURIComponent(resolvedTrip.destination || '');
-    axios.get(`https://caring-analysis-production-2d57.up.railway.app/api/v1/hotels/suggestions?lat=${lat}&lng=${lng}&radius=30000&destination=${dest}`)
-      .then(res => setHotelSuggestions(res.data || []))
-      .catch(() => setHotelSuggestions([]));
+    api.get(`/hotels/suggestions?lat=${lat}&lng=${lng}&radius=30000&destination=${dest}`)
+  .then(res => setHotelSuggestions(res.data || []))
+  .catch(() => setHotelSuggestions([]));
   }, [resolvedTrip?.id]);
 
 
@@ -374,7 +374,7 @@ const ItineraryView = () => {
           const dayId = currentDay.id || currentDay.dayNumber;
           if (!dayId) return;
           try {
-              const response = await axios.put(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/days/${dayId}/activities/weather/sync`);
+              const response = await api.put(`/trips/days/${dayId}/activities/weather/sync`);
               if (response.data && response.data.activities) {
                   setLocalActivities(response.data.activities);
               }
@@ -394,11 +394,11 @@ const ItineraryView = () => {
           return;
       }
       try {
-          const response = await axios.put(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/days/${dayId}/activities/weather/sync`);
+          const response = await api.put(`/trips/days/${dayId}/activities/weather/sync`);
           if (response.data && response.data.activities) {
               setLocalActivities(response.data.activities);
               if (id) {
-                 axios.get(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/${id}`).then(res => setFetchedTrip(res.data));
+                 api.get(`/trips/${id}`).then(res => setFetchedTrip(res.data));
               }
               addToast({ type: 'success', message: 'Weather successfully synced for this day.' });
           }
@@ -418,10 +418,10 @@ const ItineraryView = () => {
               addToast({ type: 'warning', message: 'Mock UI mode. Please generate a real trip to use this feature.' });
               setIsUpdating(false); return;
           }
-          const response = await axios.put(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/days/${dayId}/activities`, localActivities);
+          const response = await api.put(`/trips/days/${dayId}/activities`, localActivities);
           setLocalActivities(response.data.activities);
           if (id) {
-             axios.get(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/${id}`).then(res => setFetchedTrip(res.data));
+             api.get(`/trips/${id}`).then(res => setFetchedTrip(res.data));
           }
           setIsDirty(false);
           setIsUpdating(false);
@@ -445,7 +445,7 @@ const ItineraryView = () => {
           const endLat = parseFloat(activeAct.lat || activeAct.latitude);
           const endLng = parseFloat(activeAct.lng || activeAct.longitude);
           
-          const response = await axios.get(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/routing/directions?startLat=${userLocation[0]}&startLng=${userLocation[1]}&endLat=${endLat}&endLng=${endLng}`);
+          const response = await api.get(`/trips/routing/directions?startLat=${userLocation[0]}&startLng=${userLocation[1]}&endLat=${endLat}&endLng=${endLng}`);
           
           if (response.data && response.data.geometry) {
               const geoData = JSON.parse(response.data.geometry);
@@ -549,8 +549,15 @@ const ItineraryView = () => {
                 ))}
               </div>
               
-              <h2 className="text-xl font-serif text-primary mt-6 italic">{currentDay.theme || "Curated Excursion"}</h2>
-              
+              <div className="flex flex-col gap-1 mt-6">
+                <h2 className="text-xl font-serif text-primary italic">{currentDay.theme || "Curated Excursion"}</h2>
+                {currentDay.estimatedCost && (
+                  <p className="text-xs font-sans text-muted/80 tracking-widest uppercase font-semibold flex items-center gap-1.5">
+                    <Wallet className="w-3 h-3" /> Estimated Cost: ₹{currentDay.estimatedCost.toLocaleString('en-IN')}
+                  </p>
+                )}
+              </div>
+
               {resolvedTrip.durationDays > 5 && (
                   <p className="text-center text-[9px] text-muted tracking-widest uppercase mt-4 opacity-50">
                       * Weather forecasts are available for the next 5 days *
@@ -585,6 +592,10 @@ const ItineraryView = () => {
                           <button onClick={(e) => handleSafeRemoveActivity(index, e)} className="ml-3 bg-red-600 text-white font-bold px-2 py-0.5 rounded text-[8px] hover:bg-red-700 transition-colors shadow-inner flex items-center gap-1">
                               <Zap className="w-2 h-2"/> Reroute
                           </button>
+                       </div>
+                    ) : activity.weatherCondition === 'Forecast unavailable' ? (
+                       <div className="inline-flex items-center gap-2 px-3 py-1 bg-gray-50 border border-gray-200 text-gray-500 text-[10px] tracking-widest uppercase mb-3 shadow-sm rounded-sm">
+                          <CloudRain className="w-3 h-3 opacity-60" /> Forecast Unavailable
                        </div>
                     ) : activity.weatherCondition ? (
                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] tracking-widest uppercase mb-3 shadow-sm rounded-sm">

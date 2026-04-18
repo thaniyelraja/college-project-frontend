@@ -5,6 +5,7 @@ import { auth } from '../services/firebase';
 import Navbar from '../components/Navbar';
 import { MapPin, Calendar, Loader, MoreVertical, Trash2, Eye, ArrowRight } from 'lucide-react';
 import { useToast } from '../components/Toast';
+import api from '../api/axios';
 
 // ─── Static featured destinations ────────────────────────────────────────────
 const FEATURED = [
@@ -81,15 +82,22 @@ const Dashboard = () => {
   }, []);
 
   const fetchTrips = async uid => {
-    try {
-      const res = await axios.get(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips?firebaseUid=${uid}`);
-      setTrips(res.data || []);
-    } catch (e) {
-      console.error('Failed to fetch trips:', e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const res = await api.get(`/trips?firebaseUid=${uid}`);
+
+    const tripsData = Array.isArray(res.data)
+      ? res.data
+      : res.data?.data || [];
+
+    setTrips(tripsData);
+
+  } catch (e) {
+    console.error('Failed to fetch trips:', e);
+    setTrips([]); // safety fallback
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleDelete = async (e, tripId) => {
     e.stopPropagation();
@@ -103,7 +111,7 @@ const Dashboard = () => {
     setOpenMenuId(null);
     setDeletingId(tripId);
     try {
-      await axios.delete(`https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/${tripId}`);
+      await api.delete(`/trips/${tripId}`);
       setTrips(p => p.filter(t => t.id !== tripId));
       addToast({ type: 'success', message: 'Trip deleted successfully.' });
     } catch {
@@ -183,7 +191,12 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-6 py-5 grid grid-cols-3 divide-x divide-white/10">
           {[
             { label: 'Journeys Planned', value: trips.length || '—' },
-            { label: 'Days Mapped', value: trips.reduce((s, t) => s + (t.numberOfDays || 0), 0) || '—' },
+            { 
+  label: 'Days Mapped', 
+  value: Array.isArray(trips)
+    ? trips.reduce((s, t) => s + (t.numberOfDays || 0), 0)
+    : '—'
+},
             { label: 'AI Engine', value: 'Active' },
           ].map(({ label, value }) => (
             <div key={label} className="px-8 first:pl-0 last:pr-0 flex flex-col items-start">

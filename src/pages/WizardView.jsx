@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { auth } from '../services/firebase';
@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar';
 import Step1Logistics from '../components/Wizard/Step1Logistics';
 import Step2Preferences from '../components/Wizard/Step2Preferences';
 import { Compass } from 'lucide-react';
+import api from '../api/axios';
 
 const WizardView = () => {
   const navigate = useNavigate();
@@ -51,9 +52,8 @@ const WizardView = () => {
     durationDays: 3,
     startTime: 9,
     endTime: 18,
-    groupType: 'Couple',
-    budgetType: 'Normal',
-    budget: 5000,
+    groupType: 'Solo',
+    budgetType: 'normal',      // "economy" | "normal" | "luxury" — sent to backend
     interests: {
       'historyCulture': 2,
       'nature':         2,
@@ -78,7 +78,7 @@ const WizardView = () => {
     try {
       const firebaseUid = auth.currentUser?.uid || null;
       const payload = { ...formData, firebaseUid };
-      const response = await axios.post('https://caring-analysis-production-2d57.up.railway.app/api/v1/trips/generate', payload);
+      const response = await api.post(`/trips/generate`, payload);
       setIsGenerating(false);
       navigate(`/trip/${response.data?.id}`, { state: { trip: response.data } });
     } catch (error) {
