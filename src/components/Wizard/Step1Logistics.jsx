@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Compass, MapPin, Calendar, Clock, ArrowRight, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -117,6 +117,8 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
   maxDateObj.setMonth(maxDateObj.getMonth() + 1);
   const maxDateStr = maxDateObj.toISOString().split('T')[0];
 
+  const isDateInvalid = data.startDate ? (data.startDate < todayDate || data.startDate > maxDateStr) : false;
+
   // Dynamic Temporal Constraints
   const isToday = data.startDate === todayDate;
   const currentHour = new Date().getHours() + 1; // 1 hr buffer
@@ -215,17 +217,22 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="relative">
               <span className="block text-xs font-semibold text-muted mb-2">Start Date</span>
-              <div className="flex items-center border border-primary/20 p-3 hover:border-primary transition-colors">
-                <Calendar className="w-4 h-4 mr-3 text-primary" />
+              <div className={`flex items-center border p-3 transition-colors ${isDateInvalid ? 'border-red-400 hover:border-red-500' : 'border-primary/20 hover:border-primary'}`}>
+                <Calendar className={`w-4 h-4 mr-3 ${isDateInvalid ? 'text-red-500' : 'text-primary'}`} />
                 <input 
                   type="date" 
                   min={todayDate}
                   max={maxDateStr}
                   value={data.startDate}
                   onChange={(e) => updateData('startDate', e.target.value)}
-                  className="w-full bg-transparent font-sans text-sm focus:outline-none"
+                  className={`w-full bg-transparent font-sans text-sm focus:outline-none ${isDateInvalid ? 'text-red-600' : ''}`}
                 />
               </div>
+              {isDateInvalid && (
+                 <p className="text-[11px] text-red-500 mt-1 font-sans font-light px-1">
+                   Invalid date. Limit one month.
+                 </p>
+              )}
             </div>
             <div className="relative">
               <span className="block text-xs font-semibold text-muted mb-2">Trip Length: {data.durationDays} {data.durationDays === 1 ? 'day' : 'days'}</span>
@@ -324,7 +331,7 @@ const Step1Logistics = ({ data, updateData, onNext }) => {
 
         <button 
           onClick={onNext}
-          disabled={!data.destination || !data.lat || !data.startDate || (data.endTime - data.startTime < 4) || !!dateConflict || !!locationError}
+          disabled={!data.destination || !data.lat || !data.startDate || (data.endTime - data.startTime < 4) || !!dateConflict || !!locationError || isDateInvalid}
           className="inline-flex items-center gap-2 bg-primary text-white px-8 py-3.5 rounded-xl font-sans font-semibold text-sm hover:bg-primary/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
         >
           Next  <ArrowRight className="w-4 h-4" />
