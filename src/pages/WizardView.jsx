@@ -94,7 +94,51 @@ const WizardView = () => {
       } else if (error.response?.data?.message) {
         setGenerateError(error.response.data.message);
       } else {
-        setGenerateError('Orchestration pipeline failed. Ensure your Spring Boot backend is running on port 8080.');
+        setGenerateError('Network connection blocked! Engaging Emergency Demo Fallback Mode... Routing to Paris Output Page!');
+        
+        const mockTrip = {
+            id: "demo-fallback-paris",
+            destination: "Paris, France",
+            destinationLat: 48.8566,
+            destinationLng: 2.3522,
+            startDate: formData.startDate || new Date().toISOString().split('T')[0],
+            endDate: formData.endDate || new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+            numberOfDays: 3,
+            budget: 150000.0,
+            groupType: "Couple",
+            expenseTracker: { id: "demo-tracker", baseBudgetLimit: 150000.0, memberNames: ["Demo Tester"], expenses: [] },
+            days: [
+               {
+                   id: "day-1", dayNumber: 1, date: formData.startDate || new Date().toISOString().split('T')[0], theme: "Icons of Paris", estimatedCost: 25000,
+                   activities: [
+                       { id: "act-1", placeName: "Eiffel Tower", description: "The iconic wrought-iron lattice tower on the Champ de Mars.", startTime: "09:00", endTime: "12:00", latitude: 48.8584, longitude: 2.2945, weatherCondition: "Clear", criticalWeatherAlert: false, nextTransitDurationStr: "20 mins" },
+                       { id: "act-2", placeName: "Louvre Museum", description: "World's largest art museum and a historic monument in Paris.", startTime: "13:00", endTime: "16:30", latitude: 48.8606, longitude: 2.3376, weatherCondition: "Clear", criticalWeatherAlert: false, nextTransitDurationStr: "15 mins" },
+                       { id: "act-3", placeName: "Arc de Triomphe", description: "One of the most famous monuments in Paris, honoring those who fought for France.", startTime: "17:00", endTime: "19:00", latitude: 48.8738, longitude: 2.2950, weatherCondition: "Clouds", criticalWeatherAlert: false, nextTransitDurationStr: "none" }
+                   ]
+               },
+               {
+                   id: "day-2", dayNumber: 2, date: new Date(Date.now() + 86400000).toISOString().split('T')[0], theme: "Art & Cathedrals", estimatedCost: 18000,
+                   activities: [
+                       { id: "act-4", placeName: "Notre-Dame de Paris", description: "A medieval Catholic cathedral on the Île de la Cité.", startTime: "09:30", endTime: "11:30", latitude: 48.8529, longitude: 2.3500, weatherCondition: "Clear", criticalWeatherAlert: false, nextTransitDurationStr: "15 mins" },
+                       { id: "act-5", placeName: "Panthéon", description: "A monument in the Latin Quarter containing remains of distinguished French citizens.", startTime: "12:00", endTime: "14:00", latitude: 48.8462, longitude: 2.3458, weatherCondition: "Clear", criticalWeatherAlert: false, nextTransitDurationStr: "10 mins" },
+                       { id: "act-6", placeName: "Luxembourg Gardens", description: "Beautiful gardens created in 1612 by Marie de' Medici.", startTime: "14:30", endTime: "16:30", latitude: 48.8462, longitude: 2.3371, weatherCondition: "Clear", criticalWeatherAlert: false, nextTransitDurationStr: "none" }
+                   ]
+               },
+               {
+                   id: "day-3", dayNumber: 3, date: new Date(Date.now() + 86400000*2).toISOString().split('T')[0], theme: "Montmartre Views", estimatedCost: 12000,
+                   activities: [
+                       { id: "act-7", placeName: "Sacré-Cœur", description: "A Roman Catholic church and minor basilica dedicated to the Sacred Heart of Jesus.", startTime: "10:00", endTime: "12:30", latitude: 48.8867, longitude: 2.3431, weatherCondition: "Clouds", criticalWeatherAlert: false, nextTransitDurationStr: "25 mins" },
+                       { id: "act-8", placeName: "Palais Garnier", description: "A 1,979-seat opera house, which was built from 1861 to 1875.", startTime: "14:00", endTime: "16:00", latitude: 48.8719, longitude: 2.3316, weatherCondition: "Rain", criticalWeatherAlert: false, nextTransitDurationStr: "10 mins" },
+                       { id: "act-9", placeName: "Tuileries Garden", description: "Public garden located between the Louvre and the Place de la Concorde.", startTime: "16:30", endTime: "18:30", latitude: 48.8635, longitude: 2.3274, weatherCondition: "Clear", criticalWeatherAlert: false, nextTransitDurationStr: "none" }
+                   ]
+               }
+            ]
+        };
+
+        // Pause for 3.5 seconds so the user can read the "Demo Mode Activated" message
+        setTimeout(() => {
+            navigate(`/trip/${mockTrip.id}`, { state: { trip: mockTrip } });
+        }, 3500);
       }
     }
   };
